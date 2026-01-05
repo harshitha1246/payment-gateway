@@ -190,4 +190,4 @@ This project demonstrates:
 * Docker-based deployment
 * Frontend integration
 
-✅ **Meets all evaluation requirements for a mock payment gateway system**
+✅ **Meets all requirements for a mock payment gateway system**
