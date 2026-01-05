@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Transactions</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Transactions</h1>
+  <table data-test-id="transactions-table" border="1">
+    <thead>
+      <tr>
+        <th>Payment ID</th>
+        <th>Order ID</th>
+        <th>Amount</th>
+        <th>Method</th>
+        <th>Status</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+    <tbody id="tx-body"></tbody>
+  </table>
+<script>
+async function load(){
+  const res = await fetch('http://localhost:8000/api/v1/test/merchant');
+  if(!res.ok){ document.getElementById('tx-body').innerHTML = '<tr><td colspan="6">Test merchant missing</td></tr>'; return }
+  const m = await res.json();
+  const p = await fetch('http://localhost:8000/api/v1/payments?merchant_id=' + m.id);
+  if(!p.ok){ return }
+  const list = await p.json();
+  const tbody = document.getElementById('tx-body');
+  tbody.innerHTML = '';
+  for(const t of list){
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-test-id','transaction-row');
+    tr.setAttribute('data-payment-id', t.id);
+    tr.innerHTML = `<td data-test-id="payment-id">${t.id}</td><td data-test-id="order-id">${t.order_id}</td><td data-test-id="amount">${t.amount}</td><td data-test-id="method">${t.method}</td><td data-test-id="status">${t.status}</td><td data-test-id="created-at">${t.created_at}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+body{font-family:Arial,Helvetica,sans-serif;margin:20px;color:#222}
+form{max-width:360px;margin:10px 0}
+input{display:block;width:100%;padding:8px;margin:8px 0;border:1px solid #ccc;border-radius:4px}
+button{padding:10px 14px;border:none;background:#007bff;color:#fff;border-radius:4px;cursor:pointer}
+button:hover{background:#0069d9}
+#dashboard{max-width:900px}
+[data-test-id="api-credentials"]{background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:12px}
+[data-test-id="stats-container"] div{display:inline-block;margin-right:16px;padding:8px;background:#fff;border-radius:6px;border:1px solid #eee}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;border:1px solid #eee;text-align:left}
+.transaction-row{cursor:pointer}

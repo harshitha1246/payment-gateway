@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Gateway Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="login" style="display:block">
+    <form data-test-id="login-form" onsubmit="login(event)">
+      <input data-test-id="email-input" type="email" placeholder="Email" id="email" required />
+      <input data-test-id="password-input" type="password" placeholder="Password" id="password" />
+      <button data-test-id="login-button" type="submit">Login</button>
+    </form>
+  </div>
+
+  <div id="dashboard" data-test-id="dashboard" style="display:none">
+    <div data-test-id="api-credentials">
+      <div>
+        <label>API Key</label>
+        <span data-test-id="api-key" id="api-key"></span>
+      </div>
+      <div>
+        <label>API Secret</label>
+        <span data-test-id="api-secret" id="api-secret"></span>
+      </div>
+    </div>
+    <div data-test-id="stats-container">
+      <div data-test-id="total-transactions" id="total-transactions">0</div>
+      <div data-test-id="total-amount" id="total-amount">₹0</div>
+      <div data-test-id="success-rate" id="success-rate">0%</div>
+    </div>
+    <div>
+      <a href="transactions.html">View transactions</a>
+    </div>
+  </div>
+
+<script>
+const API_BASE = 'http://localhost:8000';
+async function login(e) {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+  // simple client-side check using test endpoint
+  const res = await fetch(API_BASE + '/api/v1/test/merchant');
+  if (!res.ok) { alert('Test merchant not available'); return }
+  const m = await res.json();
+  if (m.email !== email) { alert('Invalid email (use test@example.com)'); return }
+  // show dashboard
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('api-key').innerText = m.api_key;
+  // use known secret from README/env
+  document.getElementById('api-secret').innerText = 'secret_test_xyz789';
+  // fetch payments
+  const paymentsRes = await fetch(API_BASE + '/api/v1/payments?merchant_id=' + m.id);
+  if (paymentsRes.ok) {
+    const payments = await paymentsRes.json();
+    const total = payments.length;
+    const successPayments = payments.filter(p => p.status === 'success');
+    const totalAmount = successPayments.reduce((s,p)=>s+p.amount,0);
+    const successRate = total === 0 ? 0 : Math.round((successPayments.length/total)*100);
+    document.getElementById('total-transactions').innerText = total;
+    document.getElementById('total-amount').innerText = '₹' + (totalAmount/100).toFixed(2);
+    document.getElementById('success-rate').innerText = successRate + '%';
+  }
+}
+</script>
+</body>
+</html>
