@@ -4,3 +4,6 @@ SQLAlchemy==1.4.48
 psycopg2-binary==2.9.7
 python-dotenv==1.0.0
 pydantic==1.10.12
+redis==5.0.8
+rq==1.16.2
+requests==2.32.3

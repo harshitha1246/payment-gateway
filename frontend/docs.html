@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Integration Guide</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div data-testid="api-docs">
+  <h2>Integration Guide</h2>
+
+  <section data-testid="section-create-order">
+    <h3>1. Create Order</h3>
+    <pre data-testid="code-snippet-create-order"><code>curl -X POST http://localhost:8000/api/v1/orders \
+  -H "X-Api-Key: key_test_abc123" \
+  -H "X-Api-Secret: secret_test_xyz789" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 50000,
+    "currency": "INR",
+    "receipt": "receipt_123"
+  }'</code></pre>
+  </section>
+
+  <section data-testid="section-sdk-integration">
+    <h3>2. SDK Integration</h3>
+    <pre data-testid="code-snippet-sdk"><code>&lt;script src="http://localhost:3001/checkout.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+const checkout = new PaymentGateway({
+  key: 'key_test_abc123',
+  orderId: 'order_xyz',
+  onSuccess: (response) => {
+    console.log('Payment ID:', response.paymentId);
+  }
+});
+checkout.open();
+&lt;/script&gt;</code></pre>
+  </section>
+
+  <section data-testid="section-webhook-verification">
+    <h3>3. Verify Webhook Signature</h3>
+    <pre data-testid="code-snippet-webhook"><code>const crypto = require('crypto');
+
+function verifyWebhook(payload, signature, secret) {
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(payload))
+    .digest('hex');
+
+  return signature === expectedSignature;
+}</code></pre>
+  </section>
+</div>
+</body>
+</html>

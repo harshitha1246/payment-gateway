@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Webhook Configuration</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div data-testid="webhook-config">
+  <h2>Webhook Configuration</h2>
+
+  <form data-testid="webhook-config-form" onsubmit="saveWebhook(event)">
+    <div>
+      <label>Webhook URL</label>
+      <input data-testid="webhook-url-input" id="webhook-url-input" type="url" placeholder="https://yoursite.com/webhook" />
+    </div>
+
+    <div>
+      <label>Webhook Secret</label>
+      <span data-testid="webhook-secret" id="webhook-secret">-</span>
+      <button data-testid="regenerate-secret-button" type="button" onclick="regenerateSecret()">Regenerate</button>
+    </div>
+
+    <button data-testid="save-webhook-button" type="submit">Save Configuration</button>
+    <button data-testid="test-webhook-button" type="button" onclick="sendTestWebhook()">Send Test Webhook</button>
+  </form>
+
+  <h3>Webhook Logs</h3>
+  <table data-testid="webhook-logs-table" border="1">
+    <thead>
+      <tr>
+        <th>Event</th>
+        <th>Status</th>
+        <th>Attempts</th>
+        <th>Last Attempt</th>
+        <th>Response Code</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="webhook-logs-body"></tbody>
+  </table>
+</div>
+
+<script>
+const API_BASE = 'http://localhost:8000';
+const API_KEY = 'key_test_abc123';
+const API_SECRET = 'secret_test_xyz789';
+
+const authHeaders = {
+  'X-Api-Key': API_KEY,
+  'X-Api-Secret': API_SECRET,
+  'Content-Type': 'application/json'
+};
+
+async function loadWebhookConfig() {
+  const res = await fetch(API_BASE + '/api/v1/merchant/webhook', { headers: authHeaders });
+  if (!res.ok) return;
+  const data = await res.json();
+  document.getElementById('webhook-url-input').value = data.webhook_url || '';
+  document.getElementById('webhook-secret').innerText = data.webhook_secret || '-';
+}
+
+async function loadWebhookLogs() {
+  const res = await fetch(API_BASE + '/api/v1/webhooks?limit=20&offset=0', { headers: authHeaders });
+  if (!res.ok) return;
+  const payload = await res.json();
+  const tbody = document.getElementById('webhook-logs-body');
+  tbody.innerHTML = '';
+
+  for (const row of payload.data || []) {
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-testid', 'webhook-log-item');
+    tr.setAttribute('data-webhook-id', row.id);
+    tr.innerHTML =
+      '<td data-testid="webhook-event">' + row.event + '</td>' +
+      '<td data-testid="webhook-status">' + row.status + '</td>' +
+      '<td data-testid="webhook-attempts">' + row.attempts + '</td>' +
+      '<td data-testid="webhook-last-attempt">' + (row.last_attempt_at || '-') + '</td>' +
+      '<td data-testid="webhook-response-code">' + (row.response_code || '-') + '</td>' +
+      '<td><button data-testid="retry-webhook-button" data-webhook-id="' + row.id + '" onclick="retryWebhook(\'' + row.id + '\')">Retry</button></td>';
+    tbody.appendChild(tr);
+  }
+}
+
+async function saveWebhook(e) {
+  e.preventDefault();
+  const webhookUrl = document.getElementById('webhook-url-input').value;
+  const res = await fetch(API_BASE + '/api/v1/merchant/webhook', {
+    method: 'PUT',
+    headers: authHeaders,
+    body: JSON.stringify({ webhook_url: webhookUrl })
+  });
+  if (res.ok) {
+    loadWebhookConfig();
+  }
+}
+
+async function regenerateSecret() {
+  const res = await fetch(API_BASE + '/api/v1/merchant/webhook/regenerate-secret', {
+    method: 'POST',
+    headers: authHeaders
+  });
+  if (!res.ok) return;
+  const data = await res.json();
+  document.getElementById('webhook-secret').innerText = data.webhook_secret || '-';
+}
+
+async function sendTestWebhook() {
+  await fetch(API_BASE + '/api/v1/merchant/webhook/test', {
+    method: 'POST',
+    headers: authHeaders
+  });
+  setTimeout(loadWebhookLogs, 500);
+}
+
+async function retryWebhook(webhookId) {
+  await fetch(API_BASE + '/api/v1/webhooks/' + webhookId + '/retry', {
+    method: 'POST',
+    headers: authHeaders
+  });
+  setTimeout(loadWebhookLogs, 500);
+}
+
+loadWebhookConfig();
+loadWebhookLogs();
+</script>
+</body>
+</html>

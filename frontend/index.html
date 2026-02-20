@@ -33,6 +33,12 @@
     <div>
       <a href="transactions.html">View transactions</a>
     </div>
+    <div>
+      <a href="/dashboard/webhooks">Webhook Configuration</a>
+    </div>
+    <div>
+      <a href="/dashboard/docs">Integration Docs</a>
+    </div>
   </div>
 
 <script>
@@ -50,7 +56,7 @@ async function login(e) {
   document.getElementById('dashboard').style.display = 'block';
   document.getElementById('api-key').innerText = m.api_key;
   // use known secret from README/env
-  document.getElementById('api-secret').innerText = 'secret_test_xyz789';
+  document.getElementById('api-secret').innerText = m.api_secret || 'secret_test_xyz789';
   // fetch payments
   const paymentsRes = await fetch(API_BASE + '/api/v1/payments?merchant_id=' + m.id);
   if (paymentsRes.ok) {

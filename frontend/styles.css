@@ -1,11 +1,205 @@
-body{font-family:Arial,Helvetica,sans-serif;margin:20px;color:#222}
-form{max-width:360px;margin:10px 0}
-input{display:block;width:100%;padding:8px;margin:8px 0;border:1px solid #ccc;border-radius:4px}
-button{padding:10px 14px;border:none;background:#007bff;color:#fff;border-radius:4px;cursor:pointer}
-button:hover{background:#0069d9}
-#dashboard{max-width:900px}
-[data-test-id="api-credentials"]{background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:12px}
-[data-test-id="stats-container"] div{display:inline-block;margin-right:16px;padding:8px;background:#fff;border-radius:6px;border:1px solid #eee}
-table{width:100%;border-collapse:collapse}
-th,td{padding:8px;border:1px solid #eee;text-align:left}
-.transaction-row{cursor:pointer}
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	padding: 28px;
+	font-family: Inter, "Segoe UI", Arial, Helvetica, sans-serif;
+	color: #1f2937;
+	background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 40%, #f1f5f9 100%);
+}
+
+h1,
+h2,
+h3 {
+	margin: 0 0 14px;
+	color: #0f172a;
+}
+
+a {
+	color: #2563eb;
+	text-decoration: none;
+	font-weight: 600;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+#login {
+	max-width: 420px;
+	margin: 42px auto;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	padding: 24px;
+	box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+form {
+	max-width: 100%;
+	margin: 0;
+}
+
+input {
+	display: block;
+	width: 100%;
+	padding: 10px 12px;
+	margin: 10px 0;
+	border: 1px solid #cbd5e1;
+	border-radius: 10px;
+	background: #fff;
+	color: #0f172a;
+}
+
+input:focus {
+	outline: none;
+	border-color: #3b82f6;
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
+}
+
+button {
+	padding: 10px 14px;
+	border: 0;
+	border-radius: 10px;
+	background: linear-gradient(135deg, #3b82f6, #2563eb);
+	color: #fff;
+	font-weight: 600;
+	cursor: pointer;
+	transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+button:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 8px 16px rgba(37, 99, 235, 0.25);
+}
+
+button:active {
+	transform: translateY(0);
+}
+
+#dashboard,
+[data-testid="webhook-config"],
+[data-testid="api-docs"] {
+	max-width: 1080px;
+	margin: 0 auto;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	padding: 22px;
+	box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+[data-test-id="api-credentials"] {
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	padding: 14px;
+	margin-bottom: 16px;
+	display: grid;
+	gap: 10px;
+}
+
+[data-test-id="api-credentials"] label {
+	display: inline-block;
+	min-width: 90px;
+	font-weight: 700;
+	color: #334155;
+}
+
+[data-test-id="stats-container"] {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+[data-test-id="stats-container"] div {
+	padding: 14px;
+	border-radius: 12px;
+	border: 1px solid #dbeafe;
+	background: linear-gradient(135deg, #eff6ff, #f8fafc);
+	font-size: 20px;
+	font-weight: 800;
+	color: #1e3a8a;
+}
+
+#dashboard > div:has(a) {
+	margin: 8px 0;
+}
+
+table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	overflow: hidden;
+	border-radius: 12px;
+	border: 1px solid #e2e8f0;
+	background: #fff;
+}
+
+th,
+td {
+	padding: 11px 12px;
+	border-bottom: 1px solid #e5e7eb;
+	text-align: left;
+	vertical-align: top;
+	font-size: 14px;
+}
+
+th {
+	background: #f8fafc;
+	color: #334155;
+	font-weight: 700;
+}
+
+tr:last-child td {
+	border-bottom: 0;
+}
+
+tbody tr:hover {
+	background: #f8fafc;
+}
+
+[data-testid="webhook-config-form"] {
+	display: grid;
+	gap: 12px;
+	margin-bottom: 18px;
+}
+
+[data-testid="webhook-secret"] {
+	display: inline-block;
+	margin: 0 10px;
+	padding: 6px 10px;
+	border-radius: 8px;
+	background: #eff6ff;
+	border: 1px solid #bfdbfe;
+	color: #1d4ed8;
+	font-weight: 700;
+}
+
+section[data-testid^="section-"] {
+	margin-top: 16px;
+	padding: 14px;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	background: #f8fafc;
+}
+
+pre {
+	margin: 0;
+	padding: 14px;
+	border-radius: 10px;
+	overflow: auto;
+	background: #0f172a;
+	color: #e2e8f0;
+	border: 1px solid #334155;
+}
+
+code {
+	font-family: Consolas, Monaco, "Courier New", monospace;
+	font-size: 13px;
+	line-height: 1.5;
+}

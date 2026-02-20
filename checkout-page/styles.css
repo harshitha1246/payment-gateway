@@ -1,9 +1,109 @@
-body{font-family:Arial,Helvetica,sans-serif;margin:20px;color:#222}
-button{padding:8px 12px;border:none;background:#0b74de;color:#fff;border-radius:4px;cursor:pointer}
-button:hover{opacity:0.95}
-[data-test-id="checkout-container"]{max-width:520px}
-[data-test-id="order-summary"]{background:#f6f9fc;padding:12px;border-radius:6px;margin-bottom:12px}
-form input{display:block;width:100%;padding:8px;margin:6px 0;border:1px solid #ccc;border-radius:4px}
-#processing-state{font-weight:600}
-#success-state{background:#e9fff0;padding:12px;border-radius:6px}
-#error-state{background:#fff2f2;padding:12px;border-radius:6px}
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	padding: 24px;
+	font-family: Inter, "Segoe UI", Arial, Helvetica, sans-serif;
+	color: #1f2937;
+	background: linear-gradient(140deg, #e0e7ff 0%, #eff6ff 45%, #f8fafc 100%);
+}
+
+[data-test-id="checkout-container"] {
+	max-width: 540px;
+	margin: 10px auto;
+	background: #ffffff;
+	border: 1px solid #dbeafe;
+	border-radius: 16px;
+	padding: 18px;
+	box-shadow: 0 16px 36px rgba(30, 64, 175, 0.16);
+}
+
+[data-test-id="order-summary"] {
+	background: linear-gradient(135deg, #eff6ff, #f8fafc);
+	border: 1px solid #dbeafe;
+	padding: 14px;
+	border-radius: 12px;
+	margin-bottom: 14px;
+}
+
+[data-test-id="order-summary"] h2 {
+	margin: 0 0 10px;
+	color: #1e3a8a;
+}
+
+[data-test-id="payment-methods"] {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 12px;
+}
+
+button {
+	padding: 9px 14px;
+	border: 0;
+	border-radius: 10px;
+	background: linear-gradient(135deg, #2563eb, #1d4ed8);
+	color: #fff;
+	font-weight: 600;
+	cursor: pointer;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 10px 18px rgba(37, 99, 235, 0.24);
+}
+
+#embedded-close {
+	margin-bottom: 12px;
+	background: #334155;
+}
+
+form {
+	margin: 0 0 10px;
+}
+
+form input {
+	display: block;
+	width: 100%;
+	padding: 10px 12px;
+	margin: 8px 0;
+	border: 1px solid #cbd5e1;
+	border-radius: 10px;
+}
+
+form input:focus {
+	outline: none;
+	border-color: #3b82f6;
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
+}
+
+#processing-state,
+#success-state,
+#error-state {
+	margin-top: 10px;
+	padding: 14px;
+	border-radius: 12px;
+	border: 1px solid;
+}
+
+#processing-state {
+	font-weight: 700;
+	color: #1e3a8a;
+	background: #eff6ff;
+	border-color: #bfdbfe;
+}
+
+#success-state {
+	background: #ecfdf3;
+	border-color: #86efac;
+	color: #166534;
+}
+
+#error-state {
+	background: #fff1f2;
+	border-color: #fda4af;
+	color: #9f1239;
+}

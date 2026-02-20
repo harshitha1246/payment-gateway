@@ -8,6 +8,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Index,
+    PrimaryKeyConstraint,
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
@@ -15,41 +16,47 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+
 class Merchant(Base):
-    __tablename__ = 'merchants'
+    __tablename__ = "merchants"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False, unique=True)
     api_key = Column(String(64), nullable=False, unique=True)
     api_secret = Column(String(64), nullable=False)
     webhook_url = Column(Text, nullable=True)
+    webhook_secret = Column(String(64), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
+
 class Order(Base):
-    __tablename__ = 'orders'
+    __tablename__ = "orders"
     id = Column(String(64), primary_key=True)
-    merchant_id = Column(UUID(as_uuid=True), ForeignKey('merchants.id'), nullable=False)
+    merchant_id = Column(UUID(as_uuid=True), ForeignKey("merchants.id"), nullable=False)
     amount = Column(Integer, nullable=False)
-    currency = Column(String(3), nullable=False, default='INR')
+    currency = Column(String(3), nullable=False, default="INR")
     receipt = Column(String(255), nullable=True)
     notes = Column(JSONB, nullable=True)
-    status = Column(String(20), nullable=False, default='created')
+    status = Column(String(20), nullable=False, default="created")
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
-Index('ix_orders_merchant_id', Order.merchant_id)
+
+Index("ix_orders_merchant_id", Order.merchant_id)
+
 
 class Payment(Base):
-    __tablename__ = 'payments'
+    __tablename__ = "payments"
     id = Column(String(64), primary_key=True)
-    order_id = Column(String(64), ForeignKey('orders.id'), nullable=False)
-    merchant_id = Column(UUID(as_uuid=True), ForeignKey('merchants.id'), nullable=False)
+    order_id = Column(String(64), ForeignKey("orders.id"), nullable=False)
+    merchant_id = Column(UUID(as_uuid=True), ForeignKey("merchants.id"), nullable=False)
     amount = Column(Integer, nullable=False)
-    currency = Column(String(3), nullable=False, default='INR')
+    currency = Column(String(3), nullable=False, default="INR")
     method = Column(String(20), nullable=False)
-    status = Column(String(20), nullable=False, default='processing')
+    status = Column(String(20), nullable=False, default="pending")
+    captured = Column(Boolean, nullable=False, default=False, server_default="false")
     vpa = Column(String(255), nullable=True)
     card_network = Column(String(20), nullable=True)
     card_last4 = Column(String(4), nullable=True)
@@ -58,5 +65,56 @@ class Payment(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
-Index('ix_payments_order_id', Payment.order_id)
-Index('ix_payments_status', Payment.status)
+
+Index("ix_payments_order_id", Payment.order_id)
+Index("ix_payments_status", Payment.status)
+
+
+class Refund(Base):
+    __tablename__ = "refunds"
+    id = Column(String(64), primary_key=True)
+    payment_id = Column(String(64), ForeignKey("payments.id"), nullable=False)
+    merchant_id = Column(UUID(as_uuid=True), ForeignKey("merchants.id"), nullable=False)
+    amount = Column(Integer, nullable=False)
+    reason = Column(Text, nullable=True)
+    status = Column(String(20), nullable=False, default="pending")
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    processed_at = Column(DateTime(timezone=True), nullable=True)
+
+
+Index("ix_refunds_payment_id", Refund.payment_id)
+
+
+class WebhookLog(Base):
+    __tablename__ = "webhook_logs"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    merchant_id = Column(UUID(as_uuid=True), ForeignKey("merchants.id"), nullable=False)
+    event = Column(String(50), nullable=False)
+    payload = Column(JSONB, nullable=False)
+    status = Column(String(20), nullable=False, default="pending")
+    attempts = Column(Integer, nullable=False, default=0)
+    last_attempt_at = Column(DateTime(timezone=True), nullable=True)
+    next_retry_at = Column(DateTime(timezone=True), nullable=True)
+    response_code = Column(Integer, nullable=True)
+    response_body = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
+Index("ix_webhook_logs_merchant_id", WebhookLog.merchant_id)
+Index("ix_webhook_logs_status", WebhookLog.status)
+Index(
+    "ix_webhook_logs_pending_next_retry",
+    WebhookLog.next_retry_at,
+    postgresql_where=(WebhookLog.status == "pending"),
+)
+
+
+class IdempotencyKey(Base):
+    __tablename__ = "idempotency_keys"
+    key = Column(String(255), nullable=False)
+    merchant_id = Column(UUID(as_uuid=True), ForeignKey("merchants.id"), nullable=False)
+    response = Column(JSONB, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+
+    __table_args__ = (PrimaryKeyConstraint("key", "merchant_id", name="pk_idempotency_keys"),)
